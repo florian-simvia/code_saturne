@@ -663,6 +663,15 @@ class InletBoundary(Boundary):
         """
         Get the turbulence choice
         """
+        # When the active turbulence model has no transported turbulence
+        # variable to impose at inlets (laminar, mixing length, LES without
+        # Lagrangian particle tracking), remove a possibly remaining
+        # turbulence node (inherited from a previous RANS setup), as the
+        # solver would stop on a fatal error when reading it.
+        if not TurbulenceModel(self.case).getTurbulenceVariable():
+            self.boundNode.xmlRemoveChild('turbulence')
+            return None
+
         XMLTurbulenceNode = self.boundNode.xmlInitNode('turbulence')
 
         choice = XMLTurbulenceNode['choice']
